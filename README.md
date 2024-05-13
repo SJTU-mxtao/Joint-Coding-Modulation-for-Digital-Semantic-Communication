@@ -18,11 +18,11 @@ This repository contains the original code and models for the work _Joint Coding
 This code implements 4 modulation schemes: BPSK, 4QAM, 16QAM and 64QAM. 
 
 For training, run the following command (as an example):
-"""
+```
 python main.py --mode 'train' --mod_method '64QAM' --load_checkpoint 1
-"""
+```
 
 For evaluation, run the following command (as an example):
-"""
+```
 python main.py --mode 'test' --mod_method '64QAM' --load_checkpoint 1
-"""
+```
