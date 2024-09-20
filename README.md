@@ -9,7 +9,7 @@ This repository contains the original code and models for the work _Joint Coding
 * pandas==2.0.3
 * scikit_learn==1.3.0
 * scipy==1.13.0
-* skimage==0.0
+* scikit-image==0.21.0
 * torch==1.12.1+cu113
 * torchvision==0.13.1+cu113
 * tqdm==4.65.0
