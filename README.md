@@ -28,6 +28,8 @@ python main.py --mode 'test' --mod_method '64qam' --load_checkpoint 1
 ```
 
 ## Results
+The performance results in Fig. 2 and Fig. 6 in [1] are presented below.
+
 1. Accuracy
    
 | SNR (dB) | BPSK | 4QAM | 16QAM | 64QAM |
