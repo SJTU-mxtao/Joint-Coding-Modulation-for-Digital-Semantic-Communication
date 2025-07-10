@@ -29,6 +29,7 @@ python main.py --mode 'test' --mod_method '64qam' --load_checkpoint 1
 
 ## Results
 1. Accuracy
+   
 | SNR (dB) | BPSK | 4QAM | 16QAM | 64QAM |
 | :-----: | :----: | :----: | :----: | :----: |
 | 18 | 0.8783 | 0.8705 | 0.8723 | 0.8750 |
@@ -40,6 +41,7 @@ python main.py --mode 'test' --mod_method '64qam' --load_checkpoint 1
 | -18 | 0.4316 | 0.6148 | 0.6320 | 0.6271 |
 
 2. PSNR (dB)
+   
 | SNR (dB) | BPSK | 4QAM | 16QAM | 64QAM |
 | :-----: | :----: | :----: | :----: | :----: |
 | 18 | 19.5620 | 21.4954 | 23.6771 | 25.0308 |
