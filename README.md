@@ -15,16 +15,25 @@ This repository contains the original code and models for the work _Joint Coding
 * tqdm==4.65.0
 
 ## Training & Evaluation
-This code implements 4 modulation schemes: BPSK, 4QAM, 16QAM and 64QAM. 
+This code supports four modulation schemes: BPSK, 4QAM, 16QAM, and 64QAM.
+Before training the JCM network from scratch, we recommend initializing it with the parameters of an analog network.
+The analog network shares the same architecture as the JCM, except that the encoder output is transmitted through the channel directly without digitalization (the probability layer).
 
-For training, run the following command (as an example):
+If you would like to train the JCM model using our provided architecture, you may run a command such as:
 ```
-python main.py --mode 'train' --mod_method '64qam' --load_checkpoint 1
+python main.py --mode 'train' --mod_method '64qam' --pretrain_analog 0
+```
+The program will automatically load the pretrained analog model.
+
+For evaluation, you may use a command such as:
+```
+python main.py --mode 'test' --mod_method '64qam' --pretrain_analog 0 --load_checkpoint 1
 ```
 
-For evaluation, run the following command (as an example):
+If you prefer to adopt a different network architecture, you are welcome to replace our main architecture with your own design. 
+In this case, pretrain the analog model first using the following command:
 ```
-python main.py --mode 'test' --mod_method '64qam' --load_checkpoint 1
+python main.py --mode 'train' --pretrain_analog 1
 ```
 
 ## Results
