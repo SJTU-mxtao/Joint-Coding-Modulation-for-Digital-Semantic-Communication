@@ -3,7 +3,9 @@ from torch.utils.data import DataLoader
 import torch
 import torchvision.transforms as transforms
 from network import JCM
+from analog_network import AnalogNet
 from train import train
+from train_analog import train_analog
 from evaluation import EVAL
 from utils import init_seeds
 import os
@@ -52,23 +54,47 @@ def main(config):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     net = JCM(config, device).to(device)
 
-    if config.load_checkpoint:
-        model_name = '/{}/'.format(config.mod_method) + \
-                     'CIFAR_SNR{:.3f}_Trans{:d}_{}.pth.tar'.format(
-                         config.snr_train, config.channel_use, config.mod_method)
-        net.load_state_dict(torch.load('./checkpoints' + model_name, map_location=torch.device('cpu')))
+    if config.pretrain_analog:
+        pretrain_net = AnalogNet(config, device).to(device)
 
-    if config.mode == 'train':
-        print("Training with the modulation scheme {}.".format(config.mod_method))
-        train(config, net, train_loader, test_loader, device)
-
-    elif config.mode == 'test':
-        print("Start Testing.")
-        acc, mse, psnr, ssim = EVAL(net, test_loader, device, config)
-        print('acc: {:.3f}, mse: {:3f}, psnr: {:.3f}, ssmi: {:.3f}'.format(acc, mse, psnr, ssim))
+        print("Pretraining the analog network.")
+        train_analog(config, pretrain_net, train_loader, test_loader, device)
 
     else:
-        print("Wrong mode input!")
+        if config.mode == 'train':
+            print("Loading the pretrained analog network...")
+
+            if config.mod_method == 'bpsk':
+                model_name = '/pretrained_analog/1d/CIFAR_analog_SNR{:.3f}_Trans{:d}.pth.tar'.format(
+                             config.snr_train, config.channel_use)
+            else:
+                model_name = '/pretrained_analog/2d/CIFAR_analog_SNR{:.3f}_Trans{:d}.pth.tar'.format(
+                             config.snr_train, config.channel_use)
+                # the output dimension of BPSK is 1/2 of that of M-QAM
+
+            pretrained_dict = torch.load('./checkpoints' + model_name, map_location=torch.device('cpu'))
+            model_dict = net.state_dict()
+            model_dict.update(pretrained_dict)
+            net.load_state_dict(model_dict, strict=False)
+            print('Successfully load the pretrained analog model!')
+
+            print("Training with the modulation scheme {}.".format(config.mod_method))
+            train(config, net, train_loader, test_loader, device)
+
+        elif config.mode == 'test':
+            print("Start Testing.")
+
+            if config.load_checkpoint:
+                model_name = '/{}/'.format(config.mod_method) + \
+                             'CIFAR_SNR{:.3f}_Trans{:d}_{}.pth.tar'.format(
+                                 config.snr_train, config.channel_use, config.mod_method)
+                net.load_state_dict(torch.load('./checkpoints' + model_name, map_location=torch.device('cpu')))
+
+            acc, mse, psnr, ssim = EVAL(net, test_loader, device, config)
+            print('acc: {:.3f}, mse: {:3f}, psnr: {:.3f}, ssmi: {:.3f}'.format(acc, mse, psnr, ssim))
+
+        else:
+            print("Wrong mode input!")
 
 
 if __name__ == '__main__':
@@ -78,15 +104,16 @@ if __name__ == '__main__':
     parser.add_argument('--channel_use', type=int, default=128)
     """Available modulation methods:"""
     """bpsk, 4qam, 16qam, 64qam"""
-    parser.add_argument('--mod_method', type=str, default='64qam')
+    parser.add_argument('--mod_method', type=str, default='4qam')
     parser.add_argument('--load_checkpoint', type=int, default=1)
+    parser.add_argument('--pretrain_analog', type=int, default=1)
 
     # training hyper-parameters
     parser.add_argument('--train_iters', type=int, default=1)
     parser.add_argument('--batch_size', type=int, default=32)
     parser.add_argument('--lr', type=float, default=1e-4)
-    parser.add_argument('--snr_train', type=float, default=18)
-    parser.add_argument('--snr_test', type=float, default=18)
+    parser.add_argument('--snr_train', type=float, default=12)
+    parser.add_argument('--snr_test', type=float, default=12)
     """The tradeoff hyperparameter lambda between two tasks"""
     parser.add_argument('--tradeoff_lambda', type=float, default=200)
 

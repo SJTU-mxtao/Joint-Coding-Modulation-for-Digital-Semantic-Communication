@@ -45,3 +45,36 @@ def EVAL(model, data_loader, device, config, epoch=0):
     ssim_total /= total
 
     return acc_total, mse_total, psnr_total, ssim_total
+
+
+def EVAL_analog(model, data_loader, device, config, epoch=0):
+    model.eval()
+    acc_total = 0
+    mse_total = 0
+    psnr_total = 0
+    ssim_total = 0
+    total = 0
+
+    for batch_idx, (data, target) in enumerate(tqdm(data_loader)):
+        data, target = data.to(device), target.to(device)
+        total += len(target)
+
+        with torch.no_grad():
+            z, z_hat, pred, rec = model(data)
+
+        acc = (pred.data.max(1)[1] == target.data).float().sum()
+        mse = MSE(data, rec)
+        psnr = PSNR(data, rec)
+        ssim = SSIM(data, rec)
+
+        acc_total += acc
+        mse_total += mse
+        psnr_total += psnr
+        ssim_total += ssim
+
+    acc_total /= total
+    mse_total /= total
+    psnr_total /= total
+    ssim_total /= total
+
+    return acc_total, mse_total, psnr_total, ssim_total
