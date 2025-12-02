@@ -16,6 +16,7 @@ This repository contains the original code and models for the work _Joint Coding
 
 ## Training & Evaluation
 This code supports four modulation schemes: BPSK, 4QAM, 16QAM, and 64QAM.
+
 Before training the JCM network from scratch, we recommend initializing it with the parameters of an analog network.
 The analog network shares the same architecture as the JCM, except that the encoder output is transmitted through the channel directly without digitalization (the probability layer).
 
